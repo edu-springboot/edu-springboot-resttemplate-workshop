@@ -7,47 +7,51 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
 @Component
 public class AccountAdaptorImpl implements AccountAdaptor {
 
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
     private final AccountAdaptorProperties accountAdaptorProperties;
 
-    public AccountAdaptorImpl(RestTemplate restTemplate, AccountAdaptorProperties accountAdaptorProperties) {
-        this.restTemplate = restTemplate;
+    public AccountAdaptorImpl(WebClient webClient, AccountAdaptorProperties accountAdaptorProperties) {
+        this.webClient = webClient;
         this.accountAdaptorProperties = accountAdaptorProperties;
     }
 
     @Override
     public List<Account> getAccounts() {
-        ResponseEntity<List<Account>> responseEntity = restTemplate.exchange(accountAdaptorProperties.getAddress()+"/accounts", HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
-        if ( responseEntity.getStatusCode() != HttpStatus.OK ) {
-            throw new RuntimeException();
-        }
-        return responseEntity.getBody();
+        return webClient.get()
+                .uri(accountAdaptorProperties.getAddress()+"/accounts")
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<Account>>() {})
+                .block();
+
     }
 
     @Override
     public Account getAccount(Long id) {
-        ResponseEntity<Account> responseEntity = restTemplate.exchange(accountAdaptorProperties.getAddress()+"/accounts/{accountId}", HttpMethod.GET, null, new ParameterizedTypeReference<>() {}, id);
-        if ( responseEntity.getStatusCode() != HttpStatus.OK ) {
-            throw new RuntimeException();
-        }
-        return responseEntity.getBody();
+        return webClient.get()
+                .uri(accountAdaptorProperties.getAddress()+"/accounts/{accountId}", id)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Account>() {})
+                .block();
     }
 
     @Override
     public void createAccount(Account account) {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Account> request = new HttpEntity<>(account, headers);
-        ResponseEntity<Void> responseEntity = restTemplate.exchange(accountAdaptorProperties.getAddress()+"/accounts", HttpMethod.POST, request, new ParameterizedTypeReference<>() {});
-        if ( responseEntity.getStatusCode() != HttpStatus.CREATED ) {
-            throw new RuntimeException();
-        }
+        webClient.post()
+                .uri(accountAdaptorProperties.getAddress()+"/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(account)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
     }
 }
