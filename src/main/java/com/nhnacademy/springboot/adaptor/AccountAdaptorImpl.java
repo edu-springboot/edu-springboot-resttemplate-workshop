@@ -21,33 +21,24 @@ public class AccountAdaptorImpl implements AccountAdaptor {
         this.accountAdaptorProperties = accountAdaptorProperties;
     }
 
+    // TODO 4 exchange method 를 이용하여 GET /accounts 를 호출하여 결과를 반환합니다. Http Status가 OK 가 아니면 RuntimeException 을 던집니다.
     @Override
     public List<Account> getAccounts() {
-        ResponseEntity<List<Account>> responseEntity = restTemplate.exchange(accountAdaptorProperties.getAddress()+"/accounts", HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
-        if ( responseEntity.getStatusCode() != HttpStatus.OK ) {
-            throw new RuntimeException();
-        }
-        return responseEntity.getBody();
+        return null;
     }
+
+    // TODO 5 exchange method 를 이용하여 GET /accounts/{id} 를 호출하여 결과를 반환합니다. Http Status가 OK 가 아니면 RuntimeException 을 던집니다.
 
     @Override
     public Account getAccount(Long id) {
-        ResponseEntity<Account> responseEntity = restTemplate.exchange(accountAdaptorProperties.getAddress()+"/accounts/{accountId}", HttpMethod.GET, null, new ParameterizedTypeReference<>() {}, id);
-        if ( responseEntity.getStatusCode() != HttpStatus.OK ) {
-            throw new RuntimeException();
-        }
-        return responseEntity.getBody();
+        return null;
     }
+
+    // TODO 6 exchange method 를 이용하여 POST /accounts 를 호출하여 결과를 반환합니다. Http Status가 CREATED 가 아니면 RuntimeException 을 던집니다.
+    // TODO 6 Content-Type 헤더는 application/json 으로 던져야 합니다.
 
     @Override
     public void createAccount(Account account) {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Account> request = new HttpEntity<>(account, headers);
-        ResponseEntity<Void> responseEntity = restTemplate.exchange(accountAdaptorProperties.getAddress()+"/accounts", HttpMethod.POST, request, new ParameterizedTypeReference<>() {});
-        if ( responseEntity.getStatusCode() != HttpStatus.CREATED ) {
-            throw new RuntimeException();
-        }
     }
 }
