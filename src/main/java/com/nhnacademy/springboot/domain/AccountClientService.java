@@ -16,4 +16,12 @@ public class AccountClientService {
     public List<Account> getAccounts() {
         return accountAdaptor.getAccounts();
     }
+
+    public Account getAccount(Long id) {
+        return accountAdaptor.getAccount(id);
+    }
+
+    public void createAccount(Account account) {
+        accountAdaptor.createAccount(account);
+    }
 }
